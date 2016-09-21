@@ -114,6 +114,10 @@ h1 {
   margin: 0 auto;
 }
 
+#work-minus:hover, #work-plus:hover, #rest-minus:hover, #rest-plus:hover, #timer:hover {
+    cursor: pointer;
+}
+
 #space {
 	height:20px;
 }
