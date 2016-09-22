@@ -1,39 +1,32 @@
-// get elements to reduce or increase the length of the session
 var reduceSession = document.getElementById("work-minus");
 var increaseSession = document.getElementById("work-plus");
-
-// get elements to reduce or increase the length of the break
 var reduceBreak = document.getElementById("rest-minus");
 var increaseBreak = document.getElementById("rest-plus");
-
-// get elements for timer minutes and seconds
 var minutes = document.getElementById("minutes");
 var seconds = document.getElementById("seconds");
-// get elements for session and break time
 var getWorkMinutes = document.getElementById("work-time");
 var getBreakMinutes = document.getElementById("rest-time");
-
-// get whole timer face element so we can click on it to stop and start timer
 var timerFace = document.getElementById("timer");
-
-// get element that says whether it's a session or a break
 var type = document.getElementById("type");
 
-// sets the var countMinutes to match the innerHTML of the getWorkMinutes var
-var countMinutes = getWorkMinutes.innerHTML;
-
-// initial settings for seconds counter, paude button and session/break
-var countSeconds = 60;
 var isPaused = true;
-var session = true;
 var timerInit = false;
+var countSeconds = 60;
+var ticker;
+var closeTicker = false;
+type.innerHTML = 'session';
+
+var switchObj = {
+    session : true,
+    countMinutes : getWorkMinutes.innerHTML
+  };
 
 reduceSession.addEventListener('click', function(e) {
   e.preventDefault();
   if(getWorkMinutes.innerHTML >= 2 && timerInit === false) {
     getWorkMinutes.innerHTML--;
-    countMinutes = getWorkMinutes.innerHTML;
-    minutes.innerHTML = countMinutes;
+    switchObj.countMinutes = getWorkMinutes.innerHTML;
+    minutes.innerHTML = switchObj.countMinutes;
   }
 });
 
@@ -41,8 +34,8 @@ increaseSession.addEventListener('click', function(e) {
   e.preventDefault();
   if(getWorkMinutes.innerHTML <= 120 && timerInit === false) {
     getWorkMinutes.innerHTML++;
-    countMinutes = getWorkMinutes.innerHTML;
-    minutes.innerHTML = countMinutes;
+    switchObj.countMinutes = getWorkMinutes.innerHTML;
+    minutes.innerHTML = switchObj.countMinutes;
   }
 });
 
@@ -60,63 +53,70 @@ increaseBreak.addEventListener('click', function(e) {
   }
 });
 
-
-//on click or tap timer turns on or off
   timerFace.addEventListener('click', function(e) {
     e.preventDefault();
-    //if it's paused, a tap starts the ticking again
-    if(timerInit === false) timerInit = true;
+    if(timerInit === false) {
+      timerInit = true;
+      ticker = setInterval(runSeconds, 1000);
+    }
     if(isPaused) {
-      isPaused = false; 
-    //if it's going, a tap stops it
+      isPaused = false;
     } else {
       isPaused = true;
     }
+    return isPaused;
   });
 
-  var minutesDec = function() {
-    //decrement countMinutes variable
-    countMinutes--;
-    //determine appearance of minutes in the browswer
-    if(countMinutes > 0) {
-      minutes.innerHTML = countMinutes;
-    } else if(countMinutes === 0) {
-      minutes.innerHTML = '0';
-    } else if(countMinutes === -1) {
-      //switch between session and break
-      if(session) {
-        type.innerHTML = 'break time!';
-        session = false;
-        countMinutes = getBreakMinutes.innerHTML;
-      } else {
-        type.innerHTML = 'session';
-        session = true;
-        countMinutes = getWorkMinutes.innerHTML;
+  function stopTicking() {
+        clearInterval(ticker);
       }
-    } else if(countSeconds===59) {
-      minutesDec();
-    }
-  }
 
-  //once isPaused is set to false, this runs its callback every second
-    setInterval(function() {
-    //if pause is set to false, the following code will run
+  var runSeconds = function() {
       if(!isPaused) {
-      //the countSeconds var decrements by 1 every second
         countSeconds--;
-      //the following code determines how the counter is output to the browser
         if(countSeconds === 59) {
-        //when the counter is at 59, the minutes decrementer function is called
           minutesDec();
           seconds.innerHTML = countSeconds;
         } else if(countSeconds < 59 && countSeconds > 9) {
           seconds.innerHTML = countSeconds;
         } else if (countSeconds <= 9 && countSeconds > 0) {
           seconds.innerHTML = '0' + countSeconds;
-        } else if (countSeconds === 0 && countMinutes >= -1) {
+        } else if (countSeconds === 0 && switchObj.countMinutes > 0) {
           seconds.innerHTML = '00';
           countSeconds = 60;
-          minutesDec();
-        }
-      } 
-    }, 1000);
+        } else if (countSeconds === 0 && switchObj.countMinutes === 0) {
+          seconds.innerHTML = '00';
+           minutesDec();
+          countSeconds = 60;
+        } 
+      }
+    }
+
+  var minutesDec = function() {
+    switchObj.countMinutes--;
+    if(switchObj.countMinutes >= 0) {
+      minutes.innerHTML = switchObj.countMinutes;
+    } else if(switchObj.countMinutes === -1 && countSeconds === 0) {
+      switchSession();
+    }
+  }
+
+  var switchSession = function() {
+    if(closeTicker === false) {
+      closeTicker = true;
+      stopTicking();
+    }
+    if(switchObj.session) {
+        type.innerHTML = 'break time!';
+        switchObj.session = false;
+        switchObj.countMinutes = getBreakMinutes.innerHTML;
+        clearInterval(startWork);
+        var startBreak = setInterval(runSeconds, 1000);
+      } else {
+        type.innerHTML = 'session';
+        switchObj.session = true;
+        switchObj.countMinutes = getWorkMinutes.innerHTML;
+        clearInterval(startBreak);
+        var startWork = setInterval(runSeconds, 1000);
+      }
+  }
