@@ -13,7 +13,6 @@ var isPaused = true;
 var timerInit = false;
 var countSeconds = 60;
 var ticker;
-var closeTicker = false;
 type.innerHTML = 'session';
 
 var switchObj = {
@@ -67,10 +66,6 @@ increaseBreak.addEventListener('click', function(e) {
     return isPaused;
   });
 
-  function stopTicking() {
-        clearInterval(ticker);
-      }
-
   var runSeconds = function() {
       if(!isPaused) {
         countSeconds--;
@@ -102,21 +97,13 @@ increaseBreak.addEventListener('click', function(e) {
   }
 
   var switchSession = function() {
-    if(closeTicker === false) {
-      closeTicker = true;
-      stopTicking();
-    }
     if(switchObj.session) {
         type.innerHTML = 'break time!';
         switchObj.session = false;
         switchObj.countMinutes = getBreakMinutes.innerHTML;
-        clearInterval(startWork);
-        var startBreak = setInterval(runSeconds, 1000);
       } else {
         type.innerHTML = 'session';
         switchObj.session = true;
         switchObj.countMinutes = getWorkMinutes.innerHTML;
-        clearInterval(startBreak);
-        var startWork = setInterval(runSeconds, 1000);
       }
   }
