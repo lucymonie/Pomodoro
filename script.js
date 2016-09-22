@@ -50,8 +50,6 @@ reduceBreak.addEventListener('click', function(e) {
   e.preventDefault();
   if(getBreakMinutes.innerHTML >= 2 && timerInit === false) {
     getBreakMinutes.innerHTML--;
-    countMinutes = getWorkMinutes.innerHTML;
-    minutes.innerHTML = countMinutes;
   }
 });
 
@@ -59,8 +57,6 @@ increaseBreak.addEventListener('click', function(e) {
   e.preventDefault();
   if(getBreakMinutes.innerHTML <= 120 && timerInit === false) {
     getBreakMinutes.innerHTML++;
-    countMinutes = getWorkMinutes.innerHTML;
-    minutes.innerHTML = countMinutes;
   }
 });
 
@@ -78,29 +74,6 @@ increaseBreak.addEventListener('click', function(e) {
     }
   });
 
-//once isPaused is set to false, this runs its callback every second
-  setInterval(function() {
-    //if pause is set to false, the following code will run
-    if(!isPaused) {
-      //the countSeconds var decrements by 1 every second
-      countSeconds--;
-      //the following code determines how the counter is output to the browser
-      if(countSeconds === 59) {
-        //when the counter is at 59, the minutes decrementer function is called
-        minutesDec();
-        seconds.innerHTML = countSeconds;
-      } else if(countSeconds < 59 && countSeconds > 9) {
-        seconds.innerHTML = countSeconds;
-      } else if (countSeconds <= 9 && countSeconds > 0) {
-        seconds.innerHTML = '0' + countSeconds;
-      } else if (countSeconds === 0 && countMinutes >= -1) {
-        seconds.innerHTML = '00';
-        countSeconds = 60;
-        minutesDec();
-      }
-    } 
-  }, 1000);
-
   var minutesDec = function() {
     //decrement countMinutes variable
     countMinutes--;
@@ -110,6 +83,7 @@ increaseBreak.addEventListener('click', function(e) {
     } else if(countMinutes === 0) {
       minutes.innerHTML = '0';
     } else if(countMinutes === -1) {
+      //switch between session and break
       if(session) {
         type.innerHTML = 'break time!';
         session = false;
@@ -123,3 +97,26 @@ increaseBreak.addEventListener('click', function(e) {
       minutesDec();
     }
   }
+
+  //once isPaused is set to false, this runs its callback every second
+    setInterval(function() {
+    //if pause is set to false, the following code will run
+      if(!isPaused) {
+      //the countSeconds var decrements by 1 every second
+        countSeconds--;
+      //the following code determines how the counter is output to the browser
+        if(countSeconds === 59) {
+        //when the counter is at 59, the minutes decrementer function is called
+          minutesDec();
+          seconds.innerHTML = countSeconds;
+        } else if(countSeconds < 59 && countSeconds > 9) {
+          seconds.innerHTML = countSeconds;
+        } else if (countSeconds <= 9 && countSeconds > 0) {
+          seconds.innerHTML = '0' + countSeconds;
+        } else if (countSeconds === 0 && countMinutes >= -1) {
+          seconds.innerHTML = '00';
+          countSeconds = 60;
+          minutesDec();
+        }
+      } 
+    }, 1000);
